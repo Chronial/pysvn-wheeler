@@ -73,15 +73,27 @@ def main():
     if args.pysvn_version:
         pysvn_version = args.pysvn_version
     else:
-        match = re.search(r'py\d{2}-pysvn-svn\d{3,4}-((?:\d+.){2}\d+)-\d{4}.*.exe$',
+        match = re.search(r'py(\d+)-pysvn-svn\d+-([0-9.]+)-\d+.*.exe$',
                           pysvn_exe.name)
         if not match:
             print("Failed to extract version from pysvn installer name.", file=sys.stderr)
             print("Either give version via --pysvn-version or keep original installer name", file=sys.stderr)
             sys.exit(1)
-        pysvn_version = match.group(1)
 
-    # first match will be used
+        expected_py_version = "{}{}".format(*sys.version_info[:2])
+        given_py_version = match.group(1)
+        if given_py_version != expected_py_version:
+            print("The given installer doesn't match the running python version.", file=sys.stderr)
+            print(f"Running python {expected_py_version}, installer is {given_py_version}")
+            sys.exit(1)
+        pysvn_version = match.group(2)
+
+    try:
+        import wheel
+    except ImportError:
+        print("pysvn-wheeler requires the wheel pip package, which is not installed.", file=sys.stderr)
+        sys.exit(1)
+
     pysvn_inno_setup = InnoSetupExtension(
         'pysvn', [], version=distutils.version.StrictVersion(pysvn_version),
         inno_setup=pysvn_exe)

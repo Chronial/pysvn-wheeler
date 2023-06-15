@@ -2,16 +2,12 @@
 __pycache__/
 *.py[cod]
 
-# build and distribution directories
-build/
-dist/
-*.eggs/
-*.egg-info/
-pysvn/
-
 # virtual environment
 venv/
 
 # editor files
 .idea/
 .vscode/
+
+# generated wheels
+*.whl
